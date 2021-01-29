@@ -10,6 +10,14 @@ class Gaia_media {
          * Hook d'initialisation du custome post type   
          */ 
         add_action('init', array($this, 'gaia_media_init'));  
+        /**
+         * hook d'initialization de meta boxes pour les custom post type de gaia_media 
+         */
+        add_action('add_meta_boxes', array($this, 'gaia_media_register_meta_box'));  
+        /**
+         * hook pour enregistrer la meta-box  quand le post est enregistrer
+         */
+        add_action('save_post', array($this, 'gaia_media_save_meta_box'));                   
     }
 
     /**
@@ -54,4 +62,82 @@ class Gaia_media {
 
         register_post_type('gaia_media', $args); // on enregistre ici un type de post que l'on appelera gaia_media
     }
+
+    /**
+     * @function gaia_media_register_meta_box
+     * @execute add_meta_box (
+     *              $id: nom_de_la_meta_box, 
+     *              $title: titre associer à la meta box, 
+     *              $callback: nom de la function qui servira a construire la section,
+     *              $context: on designe le type de contenu auquel s'applique la meta box: gaia-media en occurance,
+     *              $priority: priorité,
+     *              $position: position
+     * ) 
+     * @description
+     */
+    function gaia_media_register_meta_box() {
+        add_meta_box('gaia_media_meta', 'Références de section', array($this, 'gaia_media_meta_building'), 'gaia_media', 'normal', 'high');
+    }
+
+    /**
+     * @function gaia_media_meta_building
+     * @param $post qui contiendra tous les meta données et CPT
+     * @description permet de remplir le contenu de nos metas boxes
+     */
+    function gaia_media_meta_building($post) {
+        
+        $gaia_meta_an = get_post_meta($post->ID, '_media_meta_an', true);
+        
+        $gaia_meta_editeur = get_post_meta($post->ID, '_media_meta_editeur', true);
+
+        wp_nonce_field('gaia_media_meta_box_saving', 'gaia_2021');
+
+        $gaia_orgs = array(
+            'Préseident(e)',
+            'Vice-président(e)',
+            'Secrétaire Général(e)',
+            'Trésorier(e)',
+            'responsable RH',
+            'responsable Qualité',
+            'responsable SI',
+            'responsable Commercial',
+            'responsable Communication',
+            'responsable Suivi d\'etudes',
+            'Chargé(e) de mission RSE',
+            'Chargé(e) Ressources Humaines',
+            'Chargé(e) de Trésorerie',
+            'Chargé(e) de Systèmes d\'informatiques',
+            'Commercial',
+            'Chargé(e) Qualité',
+            'Expert IA',
+            'Graphiste',
+            'Happiness Manager'
+        );
+        echo '<div>';
+        echo '<p><label for="media_detail_an">Organisation</label>';
+        echo '<select id="media_detail_an" name="media_detail_an">';
+            foreach($gaia_orgs as $gaia_org):
+                echo '<option value="'.$gaia_org.'"'.selected($gaia_meta_an, $gaia_org, false).'>'.$gaia_org.'</option>';
+            endforeach;
+        echo '</select></p>';
+
+        echo '<p><label for="media_detail_editeur">Grande école</label>';
+        echo '<input type="text" size="30" value="'.$gaia_meta_editeur.'" id="media_detail_editeur" name="media_detail_editeur"/><p>';
+
+        echo '</div>';
+    }    
+
+    /**
+     * @function gaia_media_save_meta_box
+     * @param $post_id
+     * @description sauvegarde meta boxes pour custom post type gaia_media
+     */
+    function gaia_media_save_meta_box($post_id) {
+        if ( get_post_type($post_id) == 'gaia_media' && isset( $_POST['media_detail_an']) ){
+            if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {return;}
+            check_admin_referer('gaia_media_meta_box_saving', 'gaia_2021');
+            update_post_meta($post_id, '_media_meta_an', sanitize_text_field($_POST['media_detail_an']));
+            update_post_meta($post_id, '_media_meta_editeur', sanitize_text_field($_POST['media_detail_editeur']));        
+        }
+    }    
 }
