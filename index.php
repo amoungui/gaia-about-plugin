@@ -13,8 +13,10 @@ class Gaia_about_section {
     public function __construct(){
         //inclusion des fichiers du plugin
         include_once plugin_dir_path( __FILE__ ).'core/gaia-media.php';
+        include_once plugin_dir_path( __FILE__ ).'core/taxonomy_gaia.php';
         //instanciation des class contenu dans les fichiers
         new Gaia_media();
+        new Taxonomy_gaia();
     }
 }
 

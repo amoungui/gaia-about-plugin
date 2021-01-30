@@ -17,7 +17,9 @@ class Gaia_media {
         /**
          * hook pour enregistrer la meta-box  quand le post est enregistrer
          */
-        add_action('save_post', array($this, 'gaia_media_save_meta_box'));                   
+        add_action('save_post', array($this, 'gaia_media_save_meta_box'));   
+        add_filter('manage_edit-gaia_media_columns', array($this, 'gaia_col_change2'));  
+        add_action('manage_gaia_media_posts_custom_column', array($this, 'gaia_content_show2'), 10, 2);                        
     }
 
     /**
@@ -138,6 +140,35 @@ class Gaia_media {
             check_admin_referer('gaia_media_meta_box_saving', 'gaia_2021');
             update_post_meta($post_id, '_media_meta_an', sanitize_text_field($_POST['media_detail_an']));
             update_post_meta($post_id, '_media_meta_editeur', sanitize_text_field($_POST['media_detail_editeur']));        
+        }
+    }    
+
+    //===============================================================================
+    //===========  ajout de l'image et année dans la colonne admin pour le gaia_media 
+    //===============================================================================
+
+    function gaia_col_change2($columns) {
+        $columns['gaia_media_org'] = "organisation";
+        $columns['gaia_media_editeur'] = "école";
+        $columns['gaia_media_image'] = "image affichée";
+
+        return $columns;
+    }
+
+    function gaia_content_show2($column, $post_id) {
+        global $post;
+        if( $column == 'gaia_media_image' ){
+            echo the_post_thumbnail(array(120, 120));
+        }
+
+        if( $column == 'gaia_media_editeur' ){
+            $gaia_meta_editeur = get_post_meta($post_id, '_media_meta_editeur', true);
+            echo $gaia_meta_editeur;
+        }    
+
+        if( $column == 'gaia_media_org' ){
+            $gaia_meta_org = get_post_meta($post_id, '_media_meta_an', true);
+            echo $gaia_meta_org;
         }
     }    
 }
