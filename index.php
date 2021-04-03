@@ -5,7 +5,7 @@ Plugin URI: https://github.com/amoungui/gaia-section-about-plugin
 Description: This is the plugin to design the section about into the gaia website
 Version: 0.1
 Author: Serge Mbele Amoungui
-Author URI: http://samoungui.com
+Author URI: http://arrowrising.site
 License: GPL2
 */
 
